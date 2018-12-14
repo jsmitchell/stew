@@ -1,17 +1,6 @@
 version: "2.2"
 
 services:
-  validator:
-    image: hyperledger/sawtooth-validator:1.1
-    volumes:
-      - keys:/shared_keys
-      - ./entrypoints:/entrypoints
-    expose:
-      - 4004
-      - 8800
-    entrypoint: /entrypoints/validator-1.sh
-    stop_signal: SIGKILL
-
   rest-api:
     image: hyperledger/sawtooth-rest-api:1.1
     expose:

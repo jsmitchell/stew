@@ -22,6 +22,8 @@ services:
       file: common-services.yaml
       service: rest-api
     command: sawtooth-rest-api --connect tcp://validator-1:4004 --bind rest-api-1:8008
+    depends_on:
+      - validator-1
 
   rest-api-2:
     ports:
@@ -30,6 +32,8 @@ services:
       file: common-services.yaml
       service: rest-api
     command: sawtooth-rest-api --connect tcp://validator-2:4004 --bind rest-api-2:8008
+    depends_on:
+      - validator-2
 
   rest-api-3:
     ports:
@@ -38,6 +42,8 @@ services:
       file: common-services.yaml
       service: rest-api
     command: sawtooth-rest-api --connect tcp://validator-3:4004 --bind rest-api-3:8008
+    depends_on:
+      - validator-3
 
   rest-api-4:
     ports:
@@ -46,6 +52,8 @@ services:
       file: common-services.yaml
       service: rest-api
     command: sawtooth-rest-api --connect tcp://validator-4:4004 --bind rest-api-4:8008
+    depends_on:
+      - validator-4
 
   rest-api-5:
     ports:
@@ -54,36 +62,48 @@ services:
       file: common-services.yaml
       service: rest-api
     command: sawtooth-rest-api --connect tcp://validator-5:4004 --bind rest-api-5:8008
+    depends_on:
+      - validator-5
 
   settings-tp-1:
     extends:
       file: common-services.yaml
       service: settings-tp
     command: settings-tp -C tcp://validator-1:4004
+    depends_on:
+      - validator-1
 
   settings-tp-2:
     extends:
       file: common-services.yaml
       service: settings-tp
     command: settings-tp -C tcp://validator-2:4004
+    depends_on:
+      - validator-2
 
   settings-tp-3:
     extends:
       file: common-services.yaml
       service: settings-tp
     command: settings-tp -C tcp://validator-3:4004
+    depends_on:
+      - validator-3
 
   settings-tp-4:
     extends:
       file: common-services.yaml
       service: settings-tp
     command: settings-tp -C tcp://validator-4:4004
+    depends_on:
+      - validator-4
 
   settings-tp-5:
     extends:
       file: common-services.yaml
       service: settings-tp
     command: settings-tp -C tcp://validator-5:4004
+    depends_on:
+      - validator-5
 
   validator-1:
     image: hyperledger/sawtooth-validator:1.1
@@ -127,7 +147,7 @@ services:
             --bind network:tcp://eth0:8800 \
             --bind component:tcp://eth0:4004 \
             --bind consensus:tcp://eth0:5050 \
-            --peering dynamic \
+            --peering static \
             --endpoint tcp://validator-1:8800 \
             --scheduler serial \
             --network-auth trust
@@ -156,12 +176,14 @@ services:
             --bind network:tcp://eth0:8800 \
             --bind component:tcp://eth0:4004 \
             --bind consensus:tcp://eth0:5050 \
-            --peering dynamic \
+            --peering static \
             --endpoint tcp://validator-2:8800 \
-            --seeds tcp://validator-1:8800 \
+            --peers tcp://validator-1:8800 \
             --scheduler serial \
             --network-auth trust
       "
+    depends_on:
+      - validator-1
     environment:
       PYTHONPATH: "/project/sawtooth-core/consensus/poet/common:\
         /project/sawtooth-core/consensus/poet/simulator:\
@@ -186,12 +208,14 @@ services:
             --bind network:tcp://eth0:8800 \
             --bind component:tcp://eth0:4004 \
             --bind consensus:tcp://eth0:5050 \
-            --peering dynamic \
+            --peering static \
             --endpoint tcp://validator-3:8800 \
-            --seeds tcp://validator-1:8800 \
+            --peers tcp://validator-1:8800 tcp://validator-2:8800 \
             --scheduler serial \
             --network-auth trust
       "
+    depends_on:
+      - validator-1
     environment:
       PYTHONPATH: "/project/sawtooth-core/consensus/poet/common:\
         /project/sawtooth-core/consensus/poet/simulator:\
@@ -216,12 +240,14 @@ services:
             --bind network:tcp://eth0:8800 \
             --bind component:tcp://eth0:4004 \
             --bind consensus:tcp://eth0:5050 \
-            --peering dynamic \
+            --peering static \
             --endpoint tcp://validator-4:8800 \
-            --seeds tcp://validator-1:8800 \
+            --seeds tcp://validator-1:8800 tcp://validator-2:8800 tcp://validator-3:8800 \
             --scheduler serial \
             --network-auth trust
       "
+    depends_on:
+      - validator-1
     environment:
       PYTHONPATH: "/project/sawtooth-core/consensus/poet/common:\
         /project/sawtooth-core/consensus/poet/simulator:\
@@ -246,12 +272,14 @@ services:
             --bind network:tcp://eth0:8800 \
             --bind component:tcp://eth0:4004 \
             --bind consensus:tcp://eth0:5050 \
-            --peering dynamic \
+            --peering static \
             --endpoint tcp://validator-5:8800 \
-            --seeds tcp://validator-1:8800 \
+            --peers tcp://validator-1:8800 tcp://validator-2:8800 tcp://validator-3:8800 tcp://validator-4:8800 \
             --scheduler serial \
             --network-auth trust
       "
+    depends_on:
+      - validator-1
     environment:
       PYTHONPATH: "/project/sawtooth-core/consensus/poet/common:\
         /project/sawtooth-core/consensus/poet/simulator:\
@@ -278,6 +306,8 @@ services:
           poet registration create -k /etc/sawtooth/keys/validator.priv -o /poet-shared/poet.batch && \
           poet-engine -C tcp://validator-1:5050 --component tcp://validator-1:4004 \
       \""
+    depends_on:
+      - validator-1
 
   poet-engine-2:
     image: hyperledger/sawtooth-poet-engine:1.1
@@ -289,6 +319,8 @@ services:
         cp -a /poet-shared/validator-2/keys /etc/sawtooth && \
         poet-engine -C tcp://validator-2:5050 --component tcp://validator-2:4004 \
     \""
+    depends_on:
+      - validator-2
 
   poet-engine-3:
     image: hyperledger/sawtooth-poet-engine:1.1
@@ -300,6 +332,8 @@ services:
         cp -a /poet-shared/validator-3/keys /etc/sawtooth && \
         poet-engine -C tcp://validator-3:5050 --component tcp://validator-3:4004 \
     \""
+    depends_on:
+      - validator-3
 
   poet-engine-4:
     image: hyperledger/sawtooth-poet-engine:1.1
@@ -311,6 +345,8 @@ services:
         cp -a /poet-shared/validator-4/keys /etc/sawtooth && \
         poet-engine -C tcp://validator-4:5050 --component tcp://validator-4:4004 \
     \""
+    depends_on:
+      - validator-4
 
   poet-engine-5:
     image: hyperledger/sawtooth-poet-engine:1.1
@@ -322,6 +358,8 @@ services:
         cp -a /poet-shared/validator-5/keys /etc/sawtooth && \
         poet-engine -C tcp://validator-5:5050 --component tcp://validator-5:4004 \
     \""
+    depends_on:
+      - validator-5
 
   poet-validator-registry-tp-1:
     image: hyperledger/sawtooth-poet-validator-registry-tp:1.1
@@ -329,6 +367,8 @@ services:
     expose:
       - 4004
     command: poet-validator-registry-tp -C tcp://validator-1:4004
+    depends_on:
+      - validator-1
     environment:
       PYTHONPATH: /project/sawtooth-core/consensus/poet/common
     stop_signal: SIGKILL
@@ -339,6 +379,8 @@ services:
     expose:
       - 4004
     command: poet-validator-registry-tp -C tcp://validator-2:4004
+    depends_on:
+      - validator-2
     environment:
       PYTHONPATH: /project/sawtooth-core/consensus/poet/common
     stop_signal: SIGKILL
@@ -349,6 +391,8 @@ services:
     expose:
       - 4004
     command: poet-validator-registry-tp -C tcp://validator-3:4004
+    depends_on:
+      - validator-3
     environment:
       PYTHONPATH: /project/sawtooth-core/consensus/poet/common
     stop_signal: SIGKILL
@@ -359,6 +403,8 @@ services:
     expose:
       - 4004
     command: poet-validator-registry-tp -C tcp://validator-4:4004
+    depends_on:
+      - validator-4
     environment:
       PYTHONPATH: /project/sawtooth-core/consensus/poet/common
     stop_signal: SIGKILL
@@ -369,6 +415,8 @@ services:
     expose:
       - 4004
     command: poet-validator-registry-tp -C tcp://validator-5:4004
+    depends_on:
+      - validator-5
     environment:
       PYTHONPATH: /project/sawtooth-core/consensus/poet/common
     stop_signal: SIGKILL
@@ -378,6 +426,8 @@ services:
     expose:
       - 4004
     command: intkey-tp-python -C tcp://validator-1:4004 -v
+    depends_on:
+      - validator-1
     stop_signal: SIGKILL
 
   intkey-tp-2:
@@ -385,6 +435,8 @@ services:
     expose:
       - 4004
     command: intkey-tp-python -C tcp://validator-2:4004
+    depends_on:
+      - validator-2
     stop_signal: SIGKILL
 
   intkey-tp-3:
@@ -392,6 +444,8 @@ services:
     expose:
       - 4004
     command: intkey-tp-python -C tcp://validator-3:4004
+    depends_on:
+      - validator-3
     stop_signal: SIGKILL
 
   intkey-tp-4:
@@ -399,6 +453,8 @@ services:
     expose:
       - 4004
     command: intkey-tp-python -C tcp://validator-4:4004
+    depends_on:
+      - validator-4
     stop_signal: SIGKILL
 
   intkey-tp-5:
@@ -406,4 +462,6 @@ services:
     expose:
       - 4004
     command: intkey-tp-python -C tcp://validator-5:4004
+    depends_on:
+      - validator-5
     stop_signal: SIGKILL
